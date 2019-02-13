@@ -42,4 +42,4 @@ venv.bak/
 **/.DS_Store
 
 #Csv data
-**/.csv
+*/.csv
