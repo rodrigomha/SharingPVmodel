@@ -1,0 +1,6 @@
+df = pd.read_csv('data/clean_2017_hourly.csv')
+df_systemsize = pd.read_csv('data/pv_system_size.csv')
+df_merge = pd.merge(df, df_systemsize, on='dataid', how='left')
+df_merge['gen_per_kW'] = (df_merge.gen/df_merge.pv_system_size)
+df_summary = df_merge.groupby(['dataid']).mean()
+df_merge.to_csv('clean_2017_hourly_normalized.csv', sep=',')

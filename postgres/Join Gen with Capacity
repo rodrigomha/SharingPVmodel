@@ -1,0 +1,4 @@
+SELECT pv_hourly_clean_2017.dataid, local_1hour, gen, use, pv_system_size, gen/pv_system_size as gen_per_kW
+FROM pv_hourly_clean_2017 INNER JOIN pv_system_size_survey_2017
+ON pv_hourly_clean_2017.dataid = pv_system_size_survey_2017.dataid
+WHERE pv_system_size IS NOT NULL
