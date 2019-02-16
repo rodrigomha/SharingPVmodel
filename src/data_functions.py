@@ -10,7 +10,7 @@ def f_gen_per_kw(df):
     "Return gen_per_kw as a matrix on which rows are timeslots and columns are firms"
     dataids = obtain_dataid_2017(df)
     validdata = len(dataids)
-    T = len(df[df.dataid==26].gen.values)
+    T = len(df[df.dataid==26].use.values)
     gen_kw = np.empty([T,validdata])
     for idx, val in enumerate(dataids):
         gen_kw[:,idx] = df[df.dataid == val]['gen_per_kW'].values
@@ -20,30 +20,39 @@ def f_load_kw(df):
     "Return gen_per_kw as a matrix on which rows are timeslots and columns are firms"
     dataids = obtain_dataid_2017(df)
     validdata = len(dataids)
-    T = len(df[df.dataid==26].gen.values)
+    T = len(df[df.dataid==26].use.values)
     load_kw = np.empty([T,validdata])
     for idx, val in enumerate(dataids):
         load_kw[:,idx] = df[df.dataid == val]['use'].values
     return load_kw
 
 def f_cap_firms(gen_per_m2, load_kw):
+    "Return the annual cap of firms"
     avgPVUsers = np.mean(gen_per_m2, axis=0) #Obtain average generation per m2 of each home
     avgLoadUsers = np.mean(load_kw, axis=0) #Obtain average demand in kW of each home
     a_cap_firms = avgLoadUsers/avgPVUsers  #Obtain cap on investment to not be a producer through the year
     return a_cap_firms
 
 def firms_investment_sharing(sol_sharing, a_max_size_firms, firms): #sol_sharing is what it is returned from the sharing algorithm
+    "Return the investment of each firm for the sharing case"
     investment_pv = np.zeros(firms)
     investment_pv[sol_sharing] = a_max_size_firms[sol_sharing]
     return investment_pv
 
+def f_lmp_prices(df):
+    pi_g = df.MW.values #prices in $/MWh
+    return pi_g
+
+
 def utility_profit_no_investment(load_kw, pi_r):
+    "Return the average profit per time slot when there is no investment in PV"
     T = len(load_kw)
     avg_profit = np.sum(pi_r*load_kw)/T
     print("Average profit per time slot without PV investment for utility is " + str(avg_profit))
     return avg_profit
 
 def utility_profit_standalone(gen_per_m2, load_kw, standalone_inv, pi_r, pi_nm):
+    "Return the average profit per time slot when there is investment in PV using the standalone model"
     firms = len(standalone_inv)
     profit = 0
     for i in range(firms):
@@ -56,6 +65,7 @@ def utility_profit_standalone(gen_per_m2, load_kw, standalone_inv, pi_r, pi_nm):
     return profit
 
 def utility_profit_sharing(gen_per_m2, load_kw, sharing_inv, pi_r):
+    "Return the average profit per time slot when there is investment in PV using the sharing model"
     firms = len(sharing_inv)
     profit = 0
     T = len(gen_per_m2)

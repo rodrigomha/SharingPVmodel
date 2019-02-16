@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import cvxpy as cvx
 from IPython.display import clear_output
 
 
@@ -111,3 +112,23 @@ def solve_sharing_collective(gen_per_m2, load_kw, valid_index, a_max_size_firms,
     print('\nTotal investment of PV in sharing case is ' + str(sum(a_max_size_firms[SetInvest])) + ' in m2')
     return SetInvest #Return which firms invest its maximum
     
+    
+    
+
+def solve_wholesale_aggregator(gen_per_m2, load_kw, a_max_firms, pi_s, pi_g):
+    firms = len(a_max_firms)
+    a_inv = cvx.Variable(firms)
+    T = len(gen_per_m2[:,0])
+    load_cost_matrix = (load_kw.T * pi_g).T
+    gen_profit_matrix = (gen_per_m2.T * pi_g).T
+    obj = pi_s*cvx.sum(a_inv) + np.sum(load_cost_matrix)/T - cvx.sum(a_inv*np.sum(gen_profit_matrix,axis=0))/T
+    constraints = [a_inv >= 0, a_inv <= a_max_firms]
+    prob = cvx.Problem(cvx.Minimize(obj), constraints)
+    prob.solve(solver=cvx.GUROBI, verbose=True)
+    print("optimal value with GUROBI:", prob.value)
+    return a_inv.value
+
+
+
+
+
