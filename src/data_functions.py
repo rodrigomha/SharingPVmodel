@@ -26,6 +26,18 @@ def f_load_kw(df):
         load_kw[:,idx] = df[df.dataid == val]['use'].values
     return load_kw
 
+def f_collective_load(load_kw):
+    return np.sum(load_kw, axis=1)
+
+def f_collective_gen(gen_per_m2, area_invested):
+    aux = gen_per_m2 * area_invested
+    return np.sum(aux, axis=1)
+
+def f_hours_collective_net_load_negative(collective_load, collective_gen):
+    net_load = collective_load - collective_gen
+    aux = net_load < 0
+    return np.sum(aux)
+
 def f_cap_firms(gen_per_m2, load_kw):
     "Return the annual cap of firms"
     avgPVUsers = np.mean(gen_per_m2, axis=0) #Obtain average generation per m2 of each home
