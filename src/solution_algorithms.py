@@ -129,6 +129,54 @@ def solve_wholesale_aggregator(gen_per_m2, load_kw, a_max_firms, pi_s, pi_g):
     return a_inv.value
 
 
+def solve_wholesale_aggregator_demandcharge(gen_per_m2, load_kw, a_max_firms, pi_s, pi_g, demand_charge):
+    firms = len(a_max_firms)
+    a_inv = cvx.Variable(firms)
+    T = len(gen_per_m2[:,0])
+    
+    #obtain timeseries for each month
+    load_jan = load_kw[0:24*31, :]
+    gen_jan = gen_per_m2[0:24*31, :]
+    load_feb =  load_kw[24*31:24*59, :]
+    gen_feb = gen_per_m2[24*31:24*59, :]
+    load_mar = load_kw[24*59:24*90, :]
+    gen_mar = gen_per_m2[24*59:24*90, :]
+    load_apr = load_kw[24*90:24*120 , :]
+    gen_apr = gen_per_m2[24*90:24*120 , :]
+    load_may = load_kw[24*120:24*151 , :]
+    gen_may = gen_per_m2[24*120:24*151 , :]
+    load_jun = load_kw[24*151:24*181 , :]
+    gen_jun = gen_per_m2[24*151:24*181 , :]
+    load_jul = load_kw[24*181:24*212 , :]
+    gen_jul = gen_per_m2[24*181:24*212 , :]
+    load_aug = load_kw[24*212:24*243 , :]
+    gen_aug = gen_per_m2[24*212:24*243 , :]
+    load_sep = load_kw[24*243:24*273 , :]
+    gen_sep = gen_per_m2[24*243:24*273 , :]
+    load_oct = load_kw[24*273:24*304 , :]
+    gen_oct = gen_per_m2[24*273:24*304 , :]
+    load_nov = load_kw[24*304:24*334 , :]
+    gen_nov = gen_per_m2[24*304:24*334 , :]
+    load_dec = load_kw[24*334: , :]
+    gen_dec = gen_per_m2[24*334: , :]
+    
+    d_charge = demand_charge/12  #average monthly payment 
+    load_cost_matrix = (load_kw.T * pi_g).T #define a matrix of size (8754, 1000) that contains the cost of purchasing electricity
+    gen_profit_matrix = (gen_per_m2.T * pi_g).T #define a matrix of size (8754, 1000) that contains the cost of selling electricity per m2
+    obj = pi_s*cvx.sum(a_inv) + np.sum(load_cost_matrix)/T - cvx.sum(a_inv*np.sum(gen_profit_matrix,axis=0))/T
+    obj = obj + d_charge* cvx.norm(np.sum(load_jan,axis=1) - gen_jan*a_inv,'inf') + d_charge* cvx.norm(np.sum(load_feb,axis=1) - gen_feb*a_inv,'inf') 
+    obj = obj + d_charge* cvx.norm(np.sum(load_mar,axis=1) - gen_mar*a_inv,'inf') + d_charge* cvx.norm(np.sum(load_apr,axis=1) - gen_apr*a_inv,'inf') 
+    obj = obj + d_charge* cvx.norm(np.sum(load_may,axis=1) - gen_may*a_inv,'inf') + d_charge* cvx.norm(np.sum(load_jun,axis=1) - gen_jun*a_inv,'inf') 
+    obj = obj + d_charge* cvx.norm(np.sum(load_jul,axis=1) - gen_jul*a_inv,'inf') + d_charge* cvx.norm(np.sum(load_aug,axis=1) - gen_aug*a_inv,'inf') 
+    obj = obj + d_charge* cvx.norm(np.sum(load_sep,axis=1) - gen_sep*a_inv,'inf') + d_charge* cvx.norm(np.sum(load_oct,axis=1) - gen_oct*a_inv,'inf') 
+    obj = obj + d_charge* cvx.norm(np.sum(load_nov,axis=1) - gen_nov*a_inv,'inf') + d_charge* cvx.norm(np.sum(load_dec,axis=1) - gen_dec*a_inv,'inf') 
+    constraints = [a_inv >= 0, a_inv <= a_max_firms]
+    prob = cvx.Problem(cvx.Minimize(obj), constraints)
+    prob.solve(solver=cvx.GUROBI, verbose=True)
+    print("optimal value with GUROBI:", prob.value)
+    return a_inv.value
+
+
 
 
 
