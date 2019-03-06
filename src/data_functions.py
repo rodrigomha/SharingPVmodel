@@ -1,4 +1,5 @@
 import numpy as np
+from numpy import linalg as LA
 import pandas as pd
 from IPython.display import clear_output
 
@@ -90,4 +91,64 @@ def utility_profit_sharing(gen_per_m2, load_kw, sharing_inv, pi_r):
     avg_profit = profit/T
     print("Average profit per time slot for utility (with sharing PV investment) is " + str(avg_profit))
     return avg_profit
+
+def wholesale_energy_costs(gen_per_m2,  load_kw, a_inv, pi_g):
+    load_cost_matrix = (load_kw.T * pi_g).T #define a matrix of size (8754, 1000) that contains the cost of purchasing electricity
+    gen_profit_matrix = (gen_per_m2.T * pi_g).T #define a matrix of size (8754, 1000) that contains the cost of selling electricity per m2
+    energy_cost = np.sum(load_cost_matrix)/T - np.sum(a_inv*np.sum(gen_profit_matrix,axis=0))/T
+    return energy_cost
+
+def wholesale_demand_charge_costs(gen_per_m2, load_kw, a_inv, demand_charge):
+    #obtain timeseries for each month
+    load_jan = load_kw[0:24*31, :]
+    gen_jan = gen_per_m2[0:24*31, :]
+    load_feb =  load_kw[24*31:24*59, :]
+    gen_feb = gen_per_m2[24*31:24*59, :]
+    load_mar = load_kw[24*59:24*90, :]
+    gen_mar = gen_per_m2[24*59:24*90, :]
+    load_apr = load_kw[24*90:24*120 , :]
+    gen_apr = gen_per_m2[24*90:24*120 , :]
+    load_may = load_kw[24*120:24*151 , :]
+    gen_may = gen_per_m2[24*120:24*151 , :]
+    load_jun = load_kw[24*151:24*181 , :]
+    gen_jun = gen_per_m2[24*151:24*181 , :]
+    load_jul = load_kw[24*181:24*212 , :]
+    gen_jul = gen_per_m2[24*181:24*212 , :]
+    load_aug = load_kw[24*212:24*243 , :]
+    gen_aug = gen_per_m2[24*212:24*243 , :]
+    load_sep = load_kw[24*243:24*273 , :]
+    gen_sep = gen_per_m2[24*243:24*273 , :]
+    load_oct = load_kw[24*273:24*304 , :]
+    gen_oct = gen_per_m2[24*273:24*304 , :]
+    load_nov = load_kw[24*304:24*334 , :]
+    gen_nov = gen_per_m2[24*304:24*334 , :]
+    load_dec = load_kw[24*334: , :]
+    gen_dec = gen_per_m2[24*334: , :]
     
+    d_charge = demand_charge/12  #average monthly payment 
+    demand_costs = []
+    cost_jan = d_charge* LA.norm(np.sum(load_jan,axis=1) - np.matmul(gen_jan,a_inv), np.inf)
+    cost_feb = d_charge* LA.norm(np.sum(load_feb,axis=1) - np.matmul(gen_feb,a_inv), np.inf)
+    cost_mar = d_charge* LA.norm(np.sum(load_mar,axis=1) - np.matmul(gen_mar,a_inv), np.inf)
+    cost_apr = d_charge* LA.norm(np.sum(load_apr,axis=1) - np.matmul(gen_apr,a_inv), np.inf)
+    cost_may = d_charge* LA.norm(np.sum(load_may,axis=1) - np.matmul(gen_may,a_inv), np.inf)
+    cost_jun = d_charge* LA.norm(np.sum(load_jun,axis=1) - np.matmul(gen_jun,a_inv), np.inf)
+    cost_jul = d_charge* LA.norm(np.sum(load_jul,axis=1) - np.matmul(gen_jul,a_inv), np.inf)
+    cost_aug = d_charge* LA.norm(np.sum(load_aug,axis=1) - np.matmul(gen_aug,a_inv), np.inf)
+    cost_sep = d_charge* LA.norm(np.sum(load_sep,axis=1) - np.matmul(gen_sep,a_inv), np.inf)
+    cost_oct = d_charge* LA.norm(np.sum(load_oct,axis=1) - np.matmul(gen_oct,a_inv), np.inf)
+    cost_nov = d_charge* LA.norm(np.sum(load_nov,axis=1) - np.matmul(gen_nov,a_inv), np.inf)
+    cost_dec = d_charge* LA.norm(np.sum(load_dec,axis=1) - np.matmul(gen_dec,a_inv), np.inf)
+    demand_costs.append(cost_jan)
+    demand_costs.append(cost_feb)
+    demand_costs.append(cost_mar)
+    demand_costs.append(cost_apr)
+    demand_costs.append(cost_may)
+    demand_costs.append(cost_jun)
+    demand_costs.append(cost_jul)
+    demand_costs.append(cost_aug)
+    demand_costs.append(cost_sep)
+    demand_costs.append(cost_oct)
+    demand_costs.append(cost_nov)
+    demand_costs.append(cost_dec)
+    return demand_costs
