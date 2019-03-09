@@ -93,6 +93,7 @@ def utility_profit_sharing(gen_per_m2, load_kw, sharing_inv, pi_r):
     return avg_profit
 
 def wholesale_energy_costs(gen_per_m2,  load_kw, a_inv, pi_g):
+    T = len(gen_per_m2[:,0])
     load_cost_matrix = (load_kw.T * pi_g).T #define a matrix of size (8754, 1000) that contains the cost of purchasing electricity
     gen_profit_matrix = (gen_per_m2.T * pi_g).T #define a matrix of size (8754, 1000) that contains the cost of selling electricity per m2
     energy_cost = np.sum(load_cost_matrix)/T - np.sum(a_inv*np.sum(gen_profit_matrix,axis=0))/T
@@ -100,6 +101,7 @@ def wholesale_energy_costs(gen_per_m2,  load_kw, a_inv, pi_g):
 
 def wholesale_demand_charge_costs(gen_per_m2, load_kw, a_inv, demand_charge):
     #obtain timeseries for each month
+    T = len(gen_per_m2[:,0])
     load_jan = load_kw[0:24*31, :]
     gen_jan = gen_per_m2[0:24*31, :]
     load_feb =  load_kw[24*31:24*59, :]
@@ -125,7 +127,7 @@ def wholesale_demand_charge_costs(gen_per_m2, load_kw, a_inv, demand_charge):
     load_dec = load_kw[24*334: , :]
     gen_dec = gen_per_m2[24*334: , :]
     
-    d_charge = demand_charge/12  #average monthly payment 
+    d_charge = demand_charge/T  #average monthly payment 
     demand_costs = []
     cost_jan = d_charge* LA.norm(np.sum(load_jan,axis=1) - np.matmul(gen_jan,a_inv), np.inf)
     cost_feb = d_charge* LA.norm(np.sum(load_feb,axis=1) - np.matmul(gen_feb,a_inv), np.inf)

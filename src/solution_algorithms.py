@@ -160,7 +160,7 @@ def solve_wholesale_aggregator_demandcharge(gen_per_m2, load_kw, a_max_firms, pi
     load_dec = load_kw[24*334: , :]
     gen_dec = gen_per_m2[24*334: , :]
     
-    d_charge = demand_charge/12  #average monthly payment 
+    d_charge = demand_charge/T  #time slot payment 
     load_cost_matrix = (load_kw.T * pi_g).T #define a matrix of size (8754, 1000) that contains the cost of purchasing electricity
     gen_profit_matrix = (gen_per_m2.T * pi_g).T #define a matrix of size (8754, 1000) that contains the cost of selling electricity per m2
     obj = pi_s*cvx.sum(a_inv) + np.sum(load_cost_matrix)/T - cvx.sum(a_inv*np.sum(gen_profit_matrix,axis=0))/T
