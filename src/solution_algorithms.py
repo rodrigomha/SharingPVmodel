@@ -51,6 +51,7 @@ def solve_sharing_collective(gen_per_m2, load_kw, valid_index, a_max_size_firms,
     dataid_removed_T = -5
     
     while Condition:
+        clear_output()
         print('\n')
         print('Iteration: ' + str(t))
         ## Compute Statistics of Collective PV and Load
