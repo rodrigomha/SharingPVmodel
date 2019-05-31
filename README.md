@@ -8,5 +8,7 @@ The code is written in Python and its organized as follows:
 - The notebook file contains the instructions and requirements to simulate the code.
 
 The model is based on the following references:
+
 [1] "Sharing Economy and Optimal Investment Decisions for Distributed Solar Generation"; Rodrigo Henriquez-Auba, Patricia Pauli, Dileep Kalathil, Duncan S. Callaway, Kameshwar Poolla; submitted to IEEE Transactions on Smart Grid, 2019.
+
 [2] "The Sharing Economy for Residential Solar Generation"; Rodrigo Henriquez-Auba, Patricia Pauli, Dileep Kalathil, Duncan S. Callaway, Kameshwar Poolla; 57th IEEE Conference on Decision and Control, 2018.
