@@ -43,4 +43,4 @@ venv.bak/
 
 #Csv data
 */.csv
-**/.csv
+**/data/*.csv
